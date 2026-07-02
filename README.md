@@ -26,12 +26,15 @@ Requires Python 3 with tkinter — bundled with the standard installers from
 [python.org](https://www.python.org/downloads/) on both macOS and Windows. On the
 Windows installer, tick **"Add python.exe to PATH"**. No `pip install` needed.
 
-**Note on tkinter:** some Python installs ship *without* tkinter — most commonly
-**Homebrew's** `python3` on macOS. The macOS launcher handles this automatically:
-it searches your installed interpreters (including the system `/usr/bin/python3`)
-and runs the first one that actually has tkinter, so you don't have to think about
-it. If none is found, it tells you to run `brew install python-tk` or install
-Python from python.org (which includes tkinter).
+**Note on tkinter:** the macOS launcher auto-selects a Python with a *usable*
+tkinter — it requires **Tk ≥ 8.6**, which skips two common traps:
+
+- Homebrew's `python3` ships without tkinter by default. Add it with
+  `brew install python-tk@3.14` (match your Python version).
+- Apple's system `/usr/bin/python3` has tkinter but an ancient **Tk 8.5** that
+  renders a blank/broken window — the launcher deliberately ignores it.
+
+If nothing usable is found, the launcher prints these same instructions.
 
 ## Use
 
