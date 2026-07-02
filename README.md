@@ -95,3 +95,7 @@ it isn't a full assistive-tech solution.
 | Toggle highlighting | `Cmd+L` | `Ctrl+L` |
 | Cycle theme | `Cmd+[` / `Cmd+]` | `Ctrl+[` / `Ctrl+]` |
 | Zoom in / out / reset | `Cmd` `+` / `-` / `0` | `Ctrl` `+` / `-` / `0` |
+
+## License
+
+[MIT](LICENSE)
