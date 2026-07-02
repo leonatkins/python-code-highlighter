@@ -55,11 +55,13 @@ accessibility themes — **High Contrast** (WCAG-AAA on black) and **Colorblind 
 (deuteranopia-friendly Okabe–Ito palette). The status bar shows a live WCAG contrast
 readout (`AA ✓`, or how many token colors are dim — the aesthetic themes like
 Solarized are intentionally low-contrast; the two accessibility themes always pass).
+The input pane's background switches with the theme too, so it matches the preview.
 
 ## Accessibility
 
-- **Zoom:** `Cmd/Ctrl` `+` / `-` / `0`, or the **A− / A+** buttons — scales the
-  editor, preview, HTML box, and UI together.
+- **Zoom:** `Cmd/Ctrl` `+` / `-` / `0`, or the **A− / A+** buttons and the slider
+  between them — scales the editor, preview, HTML box, and UI together. The code
+  panes render a notch smaller than the surrounding UI text at every zoom level.
 - **Full keyboard control + menubar** with visible accelerators. Focus outlines show
   which pane is active; `Ctrl+Tab` moves focus out of the editor.
 - **Distinct styles** (View menu): renders keywords **bold** and comments *italic* in

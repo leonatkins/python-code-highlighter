@@ -369,6 +369,10 @@ for i in range(3):
 '''
 
 MIN_ZOOM, MAX_ZOOM, BASE_ZOOM = 8, 40, 12
+# UI chrome fonts (labels, buttons, menus) are pinned to the code font's size
+# plus this bonus, so they stay a notch larger than the code panes
+# (input/preview/HTML) at every zoom level.
+UI_FONT_BONUS = 1
 PREVIEW_MIN_LINES = 3
 PREVIEW_MAX_LINES = 32
 ACCENT = "#4a90d9"
@@ -393,6 +397,7 @@ class HighlighterApp:
         except (TypeError, ValueError):
             self.zoom = BASE_ZOOM
         self.zoom = max(MIN_ZOOM, min(self.zoom, MAX_ZOOM))
+        self.zoom_var = tk.IntVar(value=self.zoom)
         self._current_html = ""
 
         # -- fonts ---------------------------------------------------------
@@ -498,9 +503,15 @@ class HighlighterApp:
         ttk.Checkbutton(top, text="Syntax highlighting",
                         variable=self.highlight_on,
                         command=self._on_option_change).pack(side="right")
-        ttk.Button(top, text="A+", width=3, command=self.zoom_in).pack(
-            side="right", padx=(12, 2))
-        ttk.Button(top, text="A−", width=3, command=self.zoom_out).pack(
+        zoom_frame = ttk.Frame(top)
+        zoom_frame.pack(side="right", padx=(12, 0))
+        ttk.Button(zoom_frame, text="A+", width=3, command=self.zoom_in).pack(
+            side="right", padx=(4, 0))
+        self.zoom_scale = ttk.Scale(
+            zoom_frame, from_=MIN_ZOOM, to=MAX_ZOOM, orient="horizontal",
+            length=90, variable=self.zoom_var, command=self._on_zoom_slide)
+        self.zoom_scale.pack(side="right")
+        ttk.Button(zoom_frame, text="A−", width=3, command=self.zoom_out).pack(
             side="right")
 
         self.status = ttk.Label(self.root, text="", padding=(10, 2), anchor="w")
@@ -594,24 +605,33 @@ class HighlighterApp:
     def apply_zoom(self):
         for f in (self.mono_font, self.mono_bold, self.mono_italic):
             f.configure(size=self.zoom)
-        factor = self.zoom / BASE_ZOOM
+        # UI chrome stays pinned a notch above the code font, at every zoom level.
+        ui_size = self.zoom + UI_FONT_BONUS
         for f, base in self._ui_fonts:
             sign = -1 if base < 0 else 1
-            f.configure(size=int(round(abs(base) * factor)) * sign)
+            f.configure(size=ui_size * sign)
         # 4-space tab stops that scale with the font.
         self.input.configure(tabs=(self.mono_font.measure("    "),))
 
-    def zoom_in(self):
-        self.zoom = min(self.zoom + 1, MAX_ZOOM)
+    def _set_zoom(self, value):
+        value = max(MIN_ZOOM, min(int(round(value)), MAX_ZOOM))
+        if value == self.zoom:
+            return
+        self.zoom = value
+        self.zoom_var.set(value)
         self.apply_zoom(); self.refresh(); self._persist()
+
+    def _on_zoom_slide(self, value):
+        self._set_zoom(float(value))
+
+    def zoom_in(self):
+        self._set_zoom(self.zoom + 1)
 
     def zoom_out(self):
-        self.zoom = max(self.zoom - 1, MIN_ZOOM)
-        self.apply_zoom(); self.refresh(); self._persist()
+        self._set_zoom(self.zoom - 1)
 
     def zoom_reset(self):
-        self.zoom = BASE_ZOOM
-        self.apply_zoom(); self.refresh(); self._persist()
+        self._set_zoom(BASE_ZOOM)
 
     def cycle_theme(self, delta):
         names = list(THEMES)
@@ -638,7 +658,9 @@ class HighlighterApp:
         highlight = self.highlight_on.get()
         distinct = self.distinct_styles.get()
 
-        # Preview colors + fonts follow the theme / distinct option.
+        # Input + preview backgrounds follow the theme.
+        self.input.configure(bg=theme["bg"], fg=theme["text"],
+                             insertbackground=theme["text"])
         self.preview.configure(bg=theme["bg"], fg=theme["text"],
                                insertbackground=theme["text"])
         for cat in CATEGORIES:
