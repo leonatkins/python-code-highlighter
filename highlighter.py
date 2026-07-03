@@ -487,23 +487,23 @@ class HighlighterApp:
         top = ttk.Frame(self.root, padding=(10, 8))
         top.pack(side="top", fill="x")
 
-        ttk.Label(top, text="Python → HTML Highlighter",
+        title_row = ttk.Frame(top)
+        title_row.pack(side="top", fill="x")
+
+        ttk.Label(title_row, text="Python → HTML Highlighter",
                   font=("TkDefaultFont", 13, "bold")).pack(side="left")
-        ttk.Button(top, text="Open .py…", command=self.open_file).pack(
+        ttk.Button(title_row, text="Open .py…", command=self.open_file).pack(
             side="left", padx=(12, 0))
 
         # Right side (packed right-to-left).
         self.theme_box = ttk.Combobox(
-            top, textvariable=self.theme_name, values=list(THEMES),
+            title_row, textvariable=self.theme_name, values=list(THEMES),
             state="readonly", width=16)
         self.theme_box.pack(side="right", padx=(0, 4))
         self.theme_box.bind("<<ComboboxSelected>>",
                             lambda e: self._on_option_change())
-        ttk.Label(top, text="Theme:").pack(side="right", padx=(12, 6))
-        ttk.Checkbutton(top, text="Syntax highlighting",
-                        variable=self.highlight_on,
-                        command=self._on_option_change).pack(side="right")
-        zoom_frame = ttk.Frame(top)
+        ttk.Label(title_row, text="Theme:").pack(side="right", padx=(12, 6))
+        zoom_frame = ttk.Frame(title_row)
         zoom_frame.pack(side="right", padx=(12, 0))
         ttk.Button(zoom_frame, text="A+", width=3, command=self.zoom_in).pack(
             side="right", padx=(4, 0))
@@ -513,6 +513,28 @@ class HighlighterApp:
         self.zoom_scale.pack(side="right")
         ttk.Button(zoom_frame, text="A−", width=3, command=self.zoom_out).pack(
             side="right")
+
+        # Second row: display options (left) and export options (right of a
+        # separator), so toggles that change output format read as distinct
+        # from toggles that just change how the preview looks.
+        options_row = ttk.Frame(top)
+        options_row.pack(side="top", fill="x", pady=(6, 0))
+        ttk.Checkbutton(options_row, text="Syntax highlighting ({}+L)".format(self._acc),
+                        variable=self.highlight_on,
+                        command=self._on_option_change).pack(side="left")
+        ttk.Checkbutton(options_row, text="Line numbers",
+                        variable=self.line_numbers,
+                        command=self._on_option_change).pack(
+            side="left", padx=(14, 0))
+        ttk.Checkbutton(options_row, text="Bold/italic (not color alone)",
+                        variable=self.distinct_styles,
+                        command=self._on_option_change).pack(
+            side="left", padx=(14, 0))
+        ttk.Separator(options_row, orient="vertical").pack(
+            side="left", fill="y", padx=14, pady=2)
+        ttk.Checkbutton(options_row, text="Wrap as full HTML page",
+                        variable=self.full_page,
+                        command=self._on_option_change).pack(side="left")
 
         self.status = ttk.Label(self.root, text="", padding=(10, 2), anchor="w")
         self.status.pack(side="bottom", fill="x")
